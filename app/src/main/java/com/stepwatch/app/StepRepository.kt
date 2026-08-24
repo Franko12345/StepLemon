@@ -111,7 +111,7 @@ class StepRepository(private val context: Context) : SensorEventListener {
         if (!isZeppInstalled()) return null
         val today = todayDate()
         return try {
-            context.contentResolver.query(
+            context.contentResolver?.query(
                 zeppStepCounterUri,
                 arrayOf("date", "step"),
                 "date = ?",
@@ -129,21 +129,45 @@ class StepRepository(private val context: Context) : SensorEventListener {
         }
     }
 
-    private fun parseDailyCursor(c: Cursor, days: Int): List<DailySteps>? {
-        val dateIdx = c.getColumnIndex("day").let { if (it >= 0) it else c.getColumnIndex("date") }
-        val stepIdx = c.getColumnIndex("step").let { if (it >= 0) it else c.getColumnIndex("total") }
-        if (dateIdx < 0 || stepIdx < 0) {
-            Log.w(TAG, "Zepp schema unknown; cols=${c.columnNames.joinToString()}")
-            return null
-        }
-        val today = todayDate()
+    /**
+     * Parse a Cursor from Zepp's `day_total_summary` provider.
+     * Returns null if the schema is unrecognised or the result is all-zeros
+     * (likely unauthorized).
+     *
+     * Schema discovery is table-driven: the parser tries each candidate schema
+     * (column name + data type) in priority order and uses the first that
+     * produces a valid date column. This is what the test suite verifies.
+     */
+    internal fun parseDailyCursor(c: Cursor, days: Int): List<DailySteps>? {
+        // Try each candidate date column + date type combination.
+        val dateColumnCandidates = listOf(
+            DateColumnSpec("day", DateType.STRING),
+            DateColumnSpec("day", DateType.YYYYMMDD_INT),
+            DateColumnSpec("date", DateType.STRING),
+            DateColumnSpec("date", DateType.LONG_MILLIS)
+        )
+        val stepColumnCandidates = listOf("step", "total")
+
+        val dateSpec = dateColumnCandidates.firstOrNull { c.getColumnIndex(it.name) >= 0 }
+            ?: return logAndNull(c, "no recognized date column")
+        val stepCol = stepColumnCandidates.firstOrNull { c.getColumnIndex(it) >= 0 }
+            ?: return logAndNull(c, "no recognized step column")
+
+        val dateIdx = c.getColumnIndex(dateSpec.name)
+        val stepIdx = c.getColumnIndex(stepCol)
+
         val byDate = HashMap<String, Long>()
         while (c.moveToNext()) {
-            val d = c.getString(dateIdx) ?: continue
-            val s = c.getLong(stepIdx)
-            val normalized = normalizeDate(d)
-            byDate[normalized] = s
+            val rawDate = when (dateSpec.type) {
+                DateType.STRING -> c.getString(dateIdx)
+                DateType.YYYYMMDD_INT -> c.getString(dateIdx)  // stored as text but 8 chars
+                DateType.LONG_MILLIS -> c.getLong(dateIdx).let { millisToDate(it) }
+            } ?: continue
+            val steps = c.getLong(stepIdx)
+            val normalized = normalizeDate(rawDate)
+            if (normalized.isNotEmpty()) byDate[normalized] = steps
         }
+
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val cal = Calendar.getInstance()
         val out = ArrayList<DailySteps>(days)
@@ -152,13 +176,23 @@ class StepRepository(private val context: Context) : SensorEventListener {
             out.add(DailySteps(date, byDate[date] ?: 0L))
             cal.add(Calendar.DAY_OF_YEAR, -1)
         }
-        // Sanity check: if all zeros, probably unauthorized or wrong schema
         if (out.sumOf { it.steps } == 0L) return null
         return out
     }
 
-    private fun normalizeDate(s: String): String = when (s.length) {
-        8 -> "${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}"
+    private fun logAndNull(c: Cursor, why: String): List<DailySteps>? {
+        Log.w(TAG, "Zepp schema unknown: $why; cols=${c.columnNames.joinToString()}")
+        return null
+    }
+
+    private enum class DateType { STRING, YYYYMMDD_INT, LONG_MILLIS }
+    private data class DateColumnSpec(val name: String, val type: DateType)
+
+    private fun millisToDate(millis: Long): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(millis))
+
+    internal fun normalizeDate(s: String): String = when {
+        s.length == 8 && s.all { it.isDigit() } -> "${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}"
         else -> s
     }
 
@@ -267,7 +301,7 @@ class StepRepository(private val context: Context) : SensorEventListener {
         for ((name, uri) in providers) {
             out.appendLine("--- $name ---")
             try {
-                context.contentResolver.query(uri, null, null, null, null)?.use { c ->
+                context.contentResolver?.query(uri, null, null, null, null)?.use { c ->
                     out.appendLine("columns (${c.columnCount}): ${c.columnNames.joinToString()}")
                     if (c.moveToFirst()) {
                         val row = (0 until c.columnCount).joinToString { i ->
