@@ -43,13 +43,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # Pin the SDK level we test against (matches app/build.gradle compileSdk/targetSdk).
-          # build-tools 34.0.0 is required for apksigner v3; we'll let setup-android pick a
-          # compatible build-tools automatically.
-          api-level: 34
-          build-tools-version: '34.0.0'
-          # Skip emulator install — we don't run instrumented tests.
-          install-debug-tools: false
+          # Pin SDK packages explicitly (these inputs are still supported).
+          packages: >-
+            platforms;android-34
+            build-tools;34.0.0
+            platform-tools
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
