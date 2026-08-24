@@ -208,9 +208,13 @@ class StepRepository(private val context: Context) : SensorEventListener {
         val out = ArrayList<DailySteps>(days)
         for (i in 0 until days) {
             val date = sdf.format(cal.time)
-            val steps: Long = zepp[date] ?: when (date) {
-                today -> nativeToday
-                else -> 0L
+            val zeppSteps = zepp[date] ?: 0L
+            // For today: Zepp often returns 0 because it hasn't consolidated today's
+            // total yet (it writes at midnight). If so, fall back to the native sensor
+            // so today's progress shows up in the totals.
+            val steps: Long = when {
+                date == today && zeppSteps <= 0L && nativeToday > 0L -> nativeToday
+                else -> zeppSteps
             }
             out.add(DailySteps(date, steps))
             cal.add(Calendar.DAY_OF_YEAR, -1)
