@@ -5,7 +5,7 @@
 
 [profile]
 name = "StepLemon-dev"
-version = "1.0"
+version = "1.1"
 scope = "StepLemon Android app (Kotlin, Material 3, single-module)"
 
 [role]
@@ -20,6 +20,7 @@ must = [
     "Keep the APK small. No new deps without an ADR.",
     "Run aapt + apksigner verify on every built APK before declaring done.",
     "Use findViewById or move to ViewBinding across the board. Pick one; do not mix.",
+    "When dispatching to DSH: name the exact branch in the task description (e.g. 'fix/v3.3-stats-really-take2') and never let DSH push to main without explicit user approval.",
 ]
 must_not = [
     "Add third-party chart libraries. Use the existing custom Views (TripleDonutView, BarChartView) or extend them.",
@@ -27,12 +28,13 @@ must_not = [
     "Add a Foreground Service. Refuse and cite decisions/0002.",
     "Touch the Zepp ContentProvider schema without first running the debug dump (ticket 05 then 06).",
     "Hardcode user-facing strings or colors in code or layouts.",
+    "Use Elvis (? : ) on the Zepp-vs-native merge path. Use explicit when {} with a zero check. See decisions/0006 for the four-layer bug history.",
 ]
 
 [review_axes]
 ponytail = "Over-engineering only. One line per finding. End with 'net: -N lines possible'."
 spec = "Walk the ticket acceptance checkboxes one by one. Literal deviations are findings; spirit-vs-literal needs justification."
-correctness = "Bug lens: NaN/None propagation, off-by-one in midnight rollovers, sensor baseline drift, cursor leak in StepRepository, empty-list edge cases in fragments."
+correctness = "Bug lens: NaN/None propagation, off-by-one in midnight rollovers, sensor baseline drift, cursor leak in StepRepository, empty-list edge cases in fragments. Specifically: walk the readMergedHistory + sensor-baseline + fragment-lifecycle stack layer by layer (decisions/0006)."
 concurrency = "TodayFragment refreshes every 2s on main thread. Flag if any new query blocks UI for more than 16ms."
 
 [communication]
@@ -46,4 +48,14 @@ before_reporting_done = [
     "APK path exists and is < 10MB",
     "aapt dump badging shows correct package and versionCode",
     "apksigner verify reports no errors (warnings about META-INF are OK)",
+    "On multi-layer bug fixes: grep for '? :' on the merge path and confirm zero matches.",
 ]
+
+[dsh_dispatch]
+# When the task is too big for a single Hermes turn, use the DSH agent
+# on the Proxmox LXC. See decisions/0007 for the operational lessons.
+when_to_dispatch = "Multi-file refactor OR cross-cutting bug with multiple interacting layers."
+workspace = "~/projetos/StepLemon"
+task_template = "Goal: ... Spec ref: ... Acceptance: ... Branch: <exact-branch-name> ... Files: ... Verification: ..."
+expected_runtime_minutes = "20-30 min for a 4-file refactor; up to 90 min for heavy builds."
+after_dispatch = "Cherry-pick the DSH commit onto a clean branch off origin/main; force-push; gh pr create. See decisions/0007 for the full recovery recipe."
