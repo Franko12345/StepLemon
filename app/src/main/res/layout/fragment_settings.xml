@@ -84,6 +84,14 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
+                
+                <LinearLayout
+                    android:id="@+id/chips_min_anchor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="2dp"/>
                 <SeekBar
                     android:id="@+id/seek_min"
                     android:layout_width="match_parent"
@@ -158,6 +166,14 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
+                
+                <LinearLayout
+                    android:id="@+id/chips_daily_anchor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="2dp"/>
                 <SeekBar
                     android:id="@+id/seek_daily"
                     android:layout_width="match_parent"
@@ -231,6 +247,14 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
+                
+                <LinearLayout
+                    android:id="@+id/chips_stretch_anchor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="2dp"/>
                 <SeekBar
                     android:id="@+id/seek_stretch"
                     android:layout_width="match_parent"
