@@ -66,9 +66,9 @@ class HistoryFragment : Fragment() {
         chip90d.setTextColor(if (rangeDays == 90) active else dim)
         chipAll.setTextColor(if (rangeDays >= 365) active else dim)
 
-        val history = repo.readZeppHistory(rangeDays)
+        val history = repo.readMergedHistory(rangeDays)
         historyListContainer.removeAllViews()
-        if (history == null || history.isEmpty()) {
+        if (history.isEmpty()) {
             historyEmpty.visibility = View.VISIBLE
             histAvgSteps.text = "—"
             histDistance.text = "—"
@@ -77,10 +77,12 @@ class HistoryFragment : Fragment() {
         }
         historyEmpty.visibility = View.GONE
 
+        // v1.2: avg includes today; goals-met excludes today (day not finished).
         val withData = history.filter { it.steps > 0 }
         val avg = if (withData.isNotEmpty()) withData.sumOf { it.steps } / withData.size else 0L
         val totalKm = history.sumOf { it.steps } * 0.00075
-        val goalsMet = history.count { it.steps >= repo.goalDaily }
+        val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(java.util.Date())
+        val goalsMet = history.count { it.date != todayStr && it.steps >= repo.goalDaily }
 
         histAvgSteps.text = formatInt(avg)
         histDistance.text = String.format(Locale.getDefault(), "%.1f km", totalKm)

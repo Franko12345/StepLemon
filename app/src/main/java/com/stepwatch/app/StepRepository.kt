@@ -191,6 +191,33 @@ class StepRepository(private val context: Context) : SensorEventListener {
         return (lastRawTotal - baseline).coerceAtLeast(0L)
     }
 
+    /**
+     * Unified history: Zepp days + native sensor for today (if Zepp didn't return today).
+     * Returns null only if both sources fail. Today-first list of length [days].
+     *
+     * v1.2: Stats / History were showing "—" because Zepp either wasn't authorized
+     * or its schema didn't match. This method gives them a working view even when
+     * Zepp is broken: today is filled from the native sensor as a fallback.
+     */
+    fun readMergedHistory(days: Int = 30): List<DailySteps> {
+        val zepp = readZeppHistory(days)?.associate { it.date to it.steps } ?: emptyMap()
+        val nativeToday = readNativeStepsToday() ?: 0L
+        val today = todayDate()
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val cal = Calendar.getInstance()
+        val out = ArrayList<DailySteps>(days)
+        for (i in 0 until days) {
+            val date = sdf.format(cal.time)
+            val steps: Long = zepp[date] ?: when (date) {
+                today -> nativeToday
+                else -> 0L
+            }
+            out.add(DailySteps(date, steps))
+            cal.add(Calendar.DAY_OF_YEAR, -1)
+        }
+        return out
+    }
+
     fun resetToday() {
         val v = lastRawTotal
         if (v >= 0) {

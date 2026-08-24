@@ -53,8 +53,8 @@ class StatsFragment : Fragment() {
     }
 
     private fun refresh() {
-        val history = repo.readZeppHistory(30)
-        if (history == null || history.isEmpty()) {
+        val history = repo.readMergedHistory(30)
+        if (history.isEmpty()) {
             statsEmpty.visibility = View.VISIBLE
             weeklyChart.bars = emptyList()
             lifetimeTotalSteps.text = "—"
@@ -69,8 +69,14 @@ class StatsFragment : Fragment() {
         }
         statsEmpty.visibility = View.GONE
 
-        // Last 7 days chart (chronological: oldest first)
-        val last7 = history.take(7).reversed()
+        // Today-first list; oldest day is at index size-1.
+        // v1.2: include today in totals + chart. Exclude today from goals-met +
+        // streak (the day isn't finished, those numbers lie until midnight).
+        val today = history.first()  // history[0] = today
+        val past = history.drop(1)
+
+        // Last 7 days chart: today + 6 previous (chronological: oldest first)
+        val last7 = (past.take(6) + today).reversed()
         weeklyChart.targetLine = repo.goalDaily.toFloat()
         weeklyChart.bars = last7.map {
             val cal = Calendar.getInstance()
@@ -82,27 +88,27 @@ class StatsFragment : Fragment() {
         val totalSteps = history.sumOf { it.steps }
         val totalKm = totalSteps * 0.00075
         val daysWithData = history.count { it.steps > 0 }
-        val goalsMet = history.count { it.steps >= repo.goalDaily }
+        // Goals-met and streaks only count PAST days — today's progress is partial.
+        val goalsMet = past.count { it.steps >= repo.goalDaily }
 
-        // Streak: consecutive days from today backwards with steps >= goal
+        // Streak: consecutive PAST days from yesterday backwards with steps >= goal.
+        // (If today qualifies, that's a bonus but not yet a "streak day".)
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val cal = Calendar.getInstance()
-        val byDate = history.associateBy { it.date }
+        val byDate = past.associateBy { it.date }
         var currentStreak = 0
-        for (i in 0..60) {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        while (true) {
             val d = sdf.format(cal.time)
             val day = byDate[d]
             if (day != null && day.steps >= repo.goalDaily) {
                 currentStreak++
                 cal.add(Calendar.DAY_OF_YEAR, -1)
-            } else if (i == 0) {
-                // Today doesn't have data yet — that's fine, look at yesterday
-                cal.add(Calendar.DAY_OF_YEAR, -1)
             } else break
         }
 
-        // Longest streak
-        val sortedDates = history.sortedBy { it.date }
+        // Longest streak over past days only.
+        val sortedDates = past.sortedBy { it.date }
         var longest = 0
         var run = 0
         var prev: Date? = null
