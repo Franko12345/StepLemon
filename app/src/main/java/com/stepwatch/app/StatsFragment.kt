@@ -54,6 +54,7 @@ class StatsFragment : Fragment() {
 
     private fun refresh() {
         val history = repo.readMergedHistory(30)
+        android.util.Log.w("StepWatch", "StatsFragment.refresh history.size=${history.size} first=${history.firstOrNull()} last=${history.lastOrNull()}")
         if (history.isEmpty()) {
             statsEmpty.visibility = View.VISIBLE
             weeklyChart.bars = emptyList()
