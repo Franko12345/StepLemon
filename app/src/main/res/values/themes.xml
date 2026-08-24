@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.StepLemon" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lemon_primary</item>
+        <item name="colorOnPrimary">@color/lemon_on_primary</item>
+        <item name="colorSecondary">@color/lemon_secondary</item>
+        <item name="colorOnSecondary">@color/lemon_on_secondary</item>
+        <item name="android:colorBackground">@color/lemon_bg</item>
+        <item name="colorSurface">@color/lemon_surface</item>
+        <item name="colorOnSurface">@color/lemon_on_surface</item>
+        <item name="colorOutline">@color/lemon_outline</item>
+        <item name="colorSurfaceVariant">@color/lemon_surface_alt</item>
+        <item name="colorOnSurfaceVariant">@color/lemon_text_dim</item>
+        <item name="android:statusBarColor">@color/lemon_bg</item>
+        <item name="android:navigationBarColor">@color/lemon_bg</item>
+    </style>
+
+    <style name="StatCard">
+        <item name="android:background">@drawable/bg_stat_card</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+</resources>

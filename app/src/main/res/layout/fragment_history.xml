@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lemon_bg"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/history_title"
+        android:textColor="@color/lemon_on_surface"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:weightSum="4">
+
+        <TextView
+            android:id="@+id/chip_7d"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/bg_chip"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="12sp"
+            android:text="@string/history_7d"/>
+
+        <TextView
+            android:id="@+id/chip_30d"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/bg_chip"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="12sp"
+            android:text="@string/history_30d"/>
+
+        <TextView
+            android:id="@+id/chip_90d"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/bg_chip"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="12sp"
+            android:text="@string/history_90d"/>
+
+        <TextView
+            android:id="@+id/chip_all"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_chip"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="12sp"
+            android:text="@string/history_all"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_stat_card">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_steps"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:id="@+id/hist_avg_steps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/history_avg_steps"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_map"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:id="@+id/hist_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/card_distance"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_target"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:id="@+id/hist_goals_met"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stat_goals_met"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/history_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/history_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:gravity="center"
+        android:textColor="@color/lemon_text_dim"
+        android:textSize="13sp"
+        android:visibility="gone"
+        android:text="@string/zepp_required_for_history"/>
+
+</LinearLayout>

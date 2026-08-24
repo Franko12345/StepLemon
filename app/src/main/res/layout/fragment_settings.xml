@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lemon_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_title"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_goals"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="6dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="6dp">
+                    <ImageView
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_target"
+                        android:contentDescription="@null"/>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_min_goal"
+                            android:textColor="@color/lemon_on_surface"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_min_desc"
+                            android:textColor="@color/lemon_text_dim"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/val_min_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3.000"
+                        android:textColor="@color/lemon_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_min"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="19000"
+                    android:progress="0"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                    <View
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="0dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="6dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="6dp">
+                    <ImageView
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_bolt"
+                        android:contentDescription="@null"/>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_daily_goal"
+                            android:textColor="@color/lemon_on_surface"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_daily_desc"
+                            android:textColor="@color/lemon_text_dim"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/val_daily_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="10.000"
+                        android:textColor="@color/lemon_secondary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_daily"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="29000"
+                    android:progress="8000"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                    <View
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="0dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="30.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="6dp">
+                    <ImageView
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_flame"
+                        android:contentDescription="@null"/>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_stretch_goal"
+                            android:textColor="@color/lemon_on_surface"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_stretch_desc"
+                            android:textColor="@color/lemon_text_dim"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/val_stretch_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="15.000"
+                        android:textColor="@color/lemon_accent_pink"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_stretch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="29000"
+                    android:progress="13000"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                    <View
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="0dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="30.000"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_data"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="6dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_source"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/settings_source"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="6dp">
+                <TextView
+                    android:id="@+id/settings_zepp_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="13sp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_reset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_reset"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+            <Button
+                android:id="@+id/btn_debug_zepp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Debug: schema Zepp"
+                android:layout_marginTop="4dp"
+                style="@style/Widget.Material3.Button.TextButton"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_about"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="6dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_about_text"
+                android:textColor="@color/lemon_text_dim"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

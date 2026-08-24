@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StepLemon</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_today">Hoje</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_history">Histórico</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Today screen -->
+    <string name="label_steps_today">passos hoje</string>
+    <string name="label_goals">Metas</string>
+    <string name="label_minimum">Mínimo</string>
+    <string name="label_daily">Diária</string>
+    <string name="label_stretch">Limite</string>
+
+    <string name="card_streak">Sequência</string>
+    <string name="card_distance">Distância</string>
+    <string name="card_floors">Andares</string>
+    <string name="card_calories">Calorias</string>
+    <string name="card_source">Fonte</string>
+
+    <!-- Stats screen -->
+    <string name="stats_this_week">Esta semana</string>
+    <string name="stats_lifetime">Estatísticas totais</string>
+    <string name="stats_personal_bests">Recordes pessoais</string>
+    <string name="stat_total_steps">Passos totais</string>
+    <string name="stat_total_distance">Distância total</string>
+    <string name="stat_goals_met">Metas atingidas</string>
+    <string name="stat_days_tracked">Dias registrados</string>
+    <string name="stat_current_streak">Sequência atual</string>
+    <string name="stat_longest_streak">Maior sequência</string>
+    <string name="stat_most_steps">Mais passos em um dia</string>
+    <string name="stat_longest_streak_days">Maior sequência (dias)</string>
+    <string name="days">dias</string>
+    <string name="no_data">Sem dados ainda</string>
+    <string name="zepp_required_for_history">Histórico precisa do Zepp Life instalado com permissão</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_goals">Metas</string>
+    <string name="settings_min_goal">Meta mínima</string>
+    <string name="settings_daily_goal">Meta diária</string>
+    <string name="settings_stretch_goal">Meta limite</string>
+    <string name="settings_min_desc">Alvo fácil do dia</string>
+    <string name="settings_daily_desc">Seu alvo principal</string>
+    <string name="settings_stretch_desc">Para dias excepcionais</string>
+
+    <string name="settings_data">Dados</string>
+    <string name="settings_source">Fonte de dados</string>
+    <string name="settings_reset">Resetar contagem do dia</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_about_text">StepLemon lê passos do Zepp Life (Mi Fitness) ou do sensor nativo do Android. Sem login, sem nuvem, sem rastreio.</string>
+
+    <!-- History -->
+    <string name="history_title">Histórico</string>
+    <string name="history_7d">7 dias</string>
+    <string name="history_30d">30 dias</string>
+    <string name="history_90d">90 dias</string>
+    <string name="history_all">Tudo</string>
+    <string name="history_avg_steps">Média passos</string>
+
+    <!-- Notifications -->
+    <string name="goal_met">Meta batida! 🎉</string>
+
+    <!-- Permissions / source -->
+    <string name="permission_required">Permissão de atividade física</string>
+    <string name="grant_permission">Conceder</string>
+    <string name="source_zepp">Zepp Life</string>
+    <string name="source_sensor">Sensor do Android</string>
+    <string name="source_none">Nenhuma fonte</string>
+    <string name="zepp_installed">Zepp instalado</string>
+    <string name="zepp_not_installed">Zepp não encontrado</string>
+    <string name="zepp_authorized">Acesso liberado</string>
+    <string name="zepp_denied">Sem acesso — abra Zepp e autorize</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lemon 🍋 palette: dark base + lime green + lemon yellow -->
+    <color name="lemon_bg">#0E1411</color>
+    <color name="lemon_surface">#152019</color>
+    <color name="lemon_surface_alt">#1B2A21</color>
+    <color name="lemon_on_surface">#E8F2EA</color>
+    <color name="lemon_outline">#3D5A45</color>
+    <color name="lemon_outline_dim">#2A3D30</color>
+    <color name="lemon_text_dim">#8FA398</color>
+
+    <color name="lemon_primary">#9CCC65</color>       <!-- lime green -->
+    <color name="lemon_on_primary">#0E1411</color>
+    <color name="lemon_secondary">#D4E157</color>     <!-- lemon yellow -->
+    <color name="lemon_on_secondary">#0E1411</color>
+
+    <color name="lemon_accent_pink">#F472B6</color>   <!-- used sparingly like Stepmelon did -->
+    <color name="lemon_accent_orange">#F59E0B</color>
+    <color name="lemon_accent_cyan">#22D3EE</color>
+</resources>

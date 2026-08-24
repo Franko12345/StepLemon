@@ -1,0 +1,32 @@
+# Local toolchain — never commit
+sdk/
+
+# Gradle
+.gradle/
+build/
+captures/
+.cxx/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+local.properties
+
+# APKs — built locally, attached to releases instead
+*.apk
+!app/src/main/res/**/*.apk
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Env / secrets — never commit
+.env
+*.keystore
+!debug.keystore  # but we don't even commit a real one
+
+# Maven / repo clutter
+.m2/

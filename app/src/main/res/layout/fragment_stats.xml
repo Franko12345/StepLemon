@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lemon_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_stats"
+            android:textColor="@color/lemon_on_surface"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/stats_this_week"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="8dp"/>
+
+            <com.stepwatch.app.BarChartView
+                android:id="@+id/weekly_chart"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/stats_lifetime"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_steps"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_total_steps"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_total_steps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_map"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_total_distance"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_total_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_target"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_goals_met"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_goals_met"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_history"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_days_tracked"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_days_tracked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_flame"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_current_streak"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_current_streak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_flame"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/stat_longest_streak"
+                    android:textColor="@color/lemon_text_dim"
+                    android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/lifetime_longest_streak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/stats_personal_bests"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="14dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_chip">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_steps"
+                        android:contentDescription="@null"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/stat_most_steps"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/pb_most_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="—"
+                        android:textColor="@color/lemon_secondary"
+                        android:textSize="22sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="14dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_chip">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_flame"
+                        android:contentDescription="@null"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/stat_longest_streak_days"
+                        android:textColor="@color/lemon_text_dim"
+                        android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/pb_longest_streak"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="—"
+                        android:textColor="@color/lemon_accent_orange"
+                        android:textSize="22sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/stats_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:gravity="center"
+            android:textColor="@color/lemon_text_dim"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:text="@string/zepp_required_for_history"/>
+
+    </LinearLayout>
+
+</ScrollView>
