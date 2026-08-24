@@ -54,7 +54,16 @@ class HistoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        // v3.3 take 2: keep the native sensor listener alive on this screen too
+        // so today's row stays live. See StatsFragment.onResume for the long
+        // explanation of why this is needed.
+        if (repo.hasNativeSensor()) repo.startNativeSensor()
         refresh()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        repo.stopNativeSensor()
     }
 
     private fun refresh() {
