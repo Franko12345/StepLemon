@@ -44,6 +44,26 @@ class StepRepository(private val context: Context) : SensorEventListener {
     @Volatile private var midnightRawTotal: Long = -1L
     @Volatile private var midnightDate: String = ""
 
+    init {
+        // v3.3 take 2: load the persisted sensor baseline eagerly so any
+        // StepRepository instance — StatsFragment's, HistoryFragment's, anyone —
+        // has a usable `readNativeStepsToday()` value even before
+        // startNativeSensor() is called. Previously, only TodayFragment called
+        // startNativeSensor(), so Stats/History always saw lastRawTotal = -1L
+        // and silently got nativeToday = 0L via the Elvis fallback, which made
+        // today's row stay at Zepp's (zero) value.
+        val persistedLast = prefs.getLong(KEY_LAST_RAW, -1L)
+        val persistedMidnight = prefs.getLong(KEY_MIDNIGHT_RAW, -1L)
+        val persistedMidnightDate = prefs.getString(KEY_MIDNIGHT_DATE, "") ?: ""
+        if (persistedLast >= 0L) lastRawTotal = persistedLast
+        if (persistedMidnight >= 0L) midnightRawTotal = persistedMidnight
+        if (persistedMidnightDate.isNotEmpty()) midnightDate = persistedMidnightDate
+        Log.w(
+            TAG,
+            "ctor: baseline loaded lastRawTotal=$lastRawTotal midnightRawTotal=$midnightRawTotal midnightDate=$midnightDate"
+        )
+    }
+
     // ---- Goals (defaults match Stepmelon-like UX) ----
     var goalMinimum: Int
         get() = goalPrefs.getInt("min", 3000)
@@ -111,7 +131,7 @@ class StepRepository(private val context: Context) : SensorEventListener {
         if (!isZeppInstalled()) return null
         val today = todayDate()
         return try {
-            context.contentResolver?.query(
+            context.contentResolver.query(
                 zeppStepCounterUri,
                 arrayOf("date", "step"),
                 "date = ?",
@@ -129,45 +149,21 @@ class StepRepository(private val context: Context) : SensorEventListener {
         }
     }
 
-    /**
-     * Parse a Cursor from Zepp's `day_total_summary` provider.
-     * Returns null if the schema is unrecognised or the result is all-zeros
-     * (likely unauthorized).
-     *
-     * Schema discovery is table-driven: the parser tries each candidate schema
-     * (column name + data type) in priority order and uses the first that
-     * produces a valid date column. This is what the test suite verifies.
-     */
-    internal fun parseDailyCursor(c: Cursor, days: Int): List<DailySteps>? {
-        // Try each candidate date column + date type combination.
-        val dateColumnCandidates = listOf(
-            DateColumnSpec("day", DateType.STRING),
-            DateColumnSpec("day", DateType.YYYYMMDD_INT),
-            DateColumnSpec("date", DateType.STRING),
-            DateColumnSpec("date", DateType.LONG_MILLIS)
-        )
-        val stepColumnCandidates = listOf("step", "total")
-
-        val dateSpec = dateColumnCandidates.firstOrNull { c.getColumnIndex(it.name) >= 0 }
-            ?: return logAndNull(c, "no recognized date column")
-        val stepCol = stepColumnCandidates.firstOrNull { c.getColumnIndex(it) >= 0 }
-            ?: return logAndNull(c, "no recognized step column")
-
-        val dateIdx = c.getColumnIndex(dateSpec.name)
-        val stepIdx = c.getColumnIndex(stepCol)
-
+    private fun parseDailyCursor(c: Cursor, days: Int): List<DailySteps>? {
+        val dateIdx = c.getColumnIndex("day").let { if (it >= 0) it else c.getColumnIndex("date") }
+        val stepIdx = c.getColumnIndex("step").let { if (it >= 0) it else c.getColumnIndex("total") }
+        if (dateIdx < 0 || stepIdx < 0) {
+            Log.w(TAG, "Zepp schema unknown; cols=${c.columnNames.joinToString()}")
+            return null
+        }
+        val today = todayDate()
         val byDate = HashMap<String, Long>()
         while (c.moveToNext()) {
-            val rawDate = when (dateSpec.type) {
-                DateType.STRING -> c.getString(dateIdx)
-                DateType.YYYYMMDD_INT -> c.getString(dateIdx)  // stored as text but 8 chars
-                DateType.LONG_MILLIS -> c.getLong(dateIdx).let { millisToDate(it) }
-            } ?: continue
-            val steps = c.getLong(stepIdx)
-            val normalized = normalizeDate(rawDate)
-            if (normalized.isNotEmpty()) byDate[normalized] = steps
+            val d = c.getString(dateIdx) ?: continue
+            val s = c.getLong(stepIdx)
+            val normalized = normalizeDate(d)
+            byDate[normalized] = s
         }
-
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val cal = Calendar.getInstance()
         val out = ArrayList<DailySteps>(days)
@@ -176,32 +172,36 @@ class StepRepository(private val context: Context) : SensorEventListener {
             out.add(DailySteps(date, byDate[date] ?: 0L))
             cal.add(Calendar.DAY_OF_YEAR, -1)
         }
+        // Sanity check: if all zeros, probably unauthorized or wrong schema
         if (out.sumOf { it.steps } == 0L) return null
         return out
     }
 
-    private fun logAndNull(c: Cursor, why: String): List<DailySteps>? {
-        Log.w(TAG, "Zepp schema unknown: $why; cols=${c.columnNames.joinToString()}")
-        return null
-    }
-
-    private enum class DateType { STRING, YYYYMMDD_INT, LONG_MILLIS }
-    private data class DateColumnSpec(val name: String, val type: DateType)
-
-    private fun millisToDate(millis: Long): String =
-        SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(millis))
-
-    internal fun normalizeDate(s: String): String = when {
-        s.length == 8 && s.all { it.isDigit() } -> "${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}"
+    private fun normalizeDate(s: String): String = when (s.length) {
+        8 -> "${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}"
         else -> s
     }
 
     fun startNativeSensor() {
-        val s = stepCounterSensor ?: return
+        val s = stepCounterSensor
+        if (s == null) {
+            Log.w(TAG, "startNativeSensor: no TYPE_STEP_COUNTER on this device")
+            return
+        }
         sensorManager.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL)
-        prefs.getLong(KEY_LAST_RAW, -1L).let { if (it >= 0) lastRawTotal = it }
-        prefs.getLong(KEY_MIDNIGHT_RAW, -1L).let { if (it >= 0) midnightRawTotal = it }
-        midnightDate = prefs.getString(KEY_MIDNIGHT_DATE, "") ?: ""
+        // v3.3 take 2: the baseline is already loaded in init {}. Re-read here
+        // is a no-op for fresh prefs but keeps the call site robust if anything
+        // mutates prefs externally between construction and start.
+        val persistedLast = prefs.getLong(KEY_LAST_RAW, -1L)
+        val persistedMidnight = prefs.getLong(KEY_MIDNIGHT_RAW, -1L)
+        val persistedMidnightDate = prefs.getString(KEY_MIDNIGHT_DATE, "") ?: ""
+        if (persistedLast >= 0L) lastRawTotal = persistedLast
+        if (persistedMidnight >= 0L) midnightRawTotal = persistedMidnight
+        if (persistedMidnightDate.isNotEmpty()) midnightDate = persistedMidnightDate
+        Log.w(
+            TAG,
+            "startNativeSensor: registered listener; baseline lastRawTotal=$lastRawTotal midnightRawTotal=$midnightRawTotal midnightDate=$midnightDate"
+        )
     }
 
     fun stopNativeSensor() {
@@ -218,41 +218,96 @@ class StepRepository(private val context: Context) : SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     fun readNativeStepsToday(): Long? {
-        if (lastRawTotal < 0) return null
+        // v3.3 take 2: do NOT use Elvis (? : 0L) at the call site — that was
+        // silently swallowing the "no baseline yet" signal. Return null and let
+        // the caller decide via an explicit null check.
+        if (lastRawTotal < 0) {
+            Log.w(TAG, "readNativeStepsToday: lastRawTotal=-1 (no baseline loaded); returning null")
+            return null
+        }
         rollMidnightIfNeeded()
         val baseline = midnightRawTotal
-        if (baseline < 0) return 0L
-        return (lastRawTotal - baseline).coerceAtLeast(0L)
+        if (baseline < 0) {
+            Log.w(TAG, "readNativeStepsToday: midnightRawTotal=-1 after roll; returning 0L")
+            return 0L
+        }
+        val rawDelta = lastRawTotal - baseline
+        val result = rawDelta.coerceAtLeast(0L)
+        Log.w(
+            TAG,
+            "readNativeStepsToday: lastRawTotal=$lastRawTotal midnightRawTotal=$midnightRawTotal midnightDate=$midnightDate → $result"
+        )
+        return result
     }
 
     /**
      * Unified history: Zepp days + native sensor for today (if Zepp didn't return today).
-     * Returns null only if both sources fail. Today-first list of length [days].
+     * Returns a list of length [days], today-first. The list is never empty: even when
+     * both sources fail we return rows with zeros so the UI can render (and the empty
+     * state is decided by the caller).
      *
-     * v1.2: Stats / History were showing "—" because Zepp either wasn't authorized
-     * or its schema didn't match. This method gives them a working view even when
-     * Zepp is broken: today is filled from the native sensor as a fallback.
+     * v3.3 take 2: explicitly distinguish "Zepp unavailable" (null map) from
+     * "Zepp returned 0 for this date". Use the sensor for today in both cases
+     * when the sensor has a positive value. No Elvis on the merge logic — every
+     * null branch is logged so adb logcat -s StepWatch:V makes the data flow
+     * visible.
      */
     fun readMergedHistory(days: Int = 30): List<DailySteps> {
-        val zepp = readZeppHistory(days)?.associate { it.date to it.steps } ?: emptyMap()
-        val nativeToday = readNativeStepsToday() ?: 0L
+        // Explicit null check, NOT `?: emptyMap()`. If Zepp returned null, we
+        // log it and treat as "no Zepp data" (every zeppSteps below will be 0).
+        val zeppRaw = readZeppHistory(days)
+        val zepp: Map<String, Long> = if (zeppRaw == null) {
+            Log.w(TAG, "readMergedHistory: Zepp unavailable (null); falling back to native sensor only")
+            emptyMap()
+        } else {
+            zeppRaw.associate { it.date to it.steps }
+        }
+        // Explicit null check, NOT `?: 0L`. The earlier Elvis was the actual
+        // bug: nativeToday silently became 0 whenever no listener had fired in
+        // this repo instance, which is exactly the Stats/History code path.
+        val nativeToday = readNativeStepsToday()
+        val nativeTodayValue: Long
+        if (nativeToday == null) {
+            Log.w(TAG, "readMergedHistory: native sensor has no baseline (null); today will only show Zepp value")
+            nativeTodayValue = 0L
+        } else {
+            nativeTodayValue = nativeToday
+        }
         val today = todayDate()
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val cal = Calendar.getInstance()
         val out = ArrayList<DailySteps>(days)
         for (i in 0 until days) {
             val date = sdf.format(cal.time)
-            val zeppSteps = zepp[date] ?: 0L
-            // For today: Zepp often returns 0 because it hasn't consolidated today's
-            // total yet (it writes at midnight). If so, fall back to the native sensor
-            // so today's progress shows up in the totals.
-            val steps: Long = when {
-                date == today && zeppSteps <= 0L && nativeToday > 0L -> nativeToday
-                else -> zeppSteps
+            val isToday = (date == today)
+            val zeppSteps = zepp[date]
+            val zeppStepsValue: Long = if (zeppSteps == null) 0L else zeppSteps
+            // For today: if Zepp is missing OR returned 0 (likely because Zepp
+            // hasn't consolidated today's total yet — it writes at midnight),
+            // use the native sensor value instead so today's progress shows up
+            // in totals/streaks/distance. For past days: trust Zepp (sensor is
+            // ephemeral — only "since this app instance started").
+            //
+            // This used to be `zepp[date] ?: when (date) { today -> nativeToday; else -> 0L }`
+            // which never fired for today because parseDailyCursor fills today's
+            // missing entry with 0 (not null) — so today's native fallback was
+            // permanently dead. The Elvis on the merge logic is replaced with
+            // an explicit check on the value, not just nullability.
+            val steps: Long
+            if (isToday && zeppStepsValue <= 0L && nativeTodayValue > 0L) {
+                steps = nativeTodayValue
+            } else {
+                steps = zeppStepsValue
             }
+            Log.w(
+                TAG,
+                "readMergedHistory[$date] isToday=$isToday zepp=$zeppStepsValue nativeToday=$nativeTodayValue → $steps"
+            )
             out.add(DailySteps(date, steps))
             cal.add(Calendar.DAY_OF_YEAR, -1)
         }
+        val total = out.sumOf { it.steps }
+        Log.w(TAG, "readMergedHistory done: totalSteps=$total size=${out.size} today=$today")
         return out
     }
 
@@ -301,7 +356,7 @@ class StepRepository(private val context: Context) : SensorEventListener {
         for ((name, uri) in providers) {
             out.appendLine("--- $name ---")
             try {
-                context.contentResolver?.query(uri, null, null, null, null)?.use { c ->
+                context.contentResolver.query(uri, null, null, null, null)?.use { c ->
                     out.appendLine("columns (${c.columnCount}): ${c.columnNames.joinToString()}")
                     if (c.moveToFirst()) {
                         val row = (0 until c.columnCount).joinToString { i ->

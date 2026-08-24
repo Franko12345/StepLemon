@@ -1,6 +1,7 @@
 package com.stepwatch.app
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,12 +50,36 @@ class StatsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        // v3.3 take 2: StatsFragment must keep the native sensor listener alive
+        // while it is visible so today's row in the bar chart and the lifetime
+        // total reflect live progress. Previously only TodayFragment called
+        // startNativeSensor(), so by the time the user opened Stats,
+        // lastRawTotal was stale (or -1L for a freshly-constructed repo) and
+        // readMergedHistory's native-today fallback silently fired its Elvis
+        // (?: 0L) branch — making today's row always 0.
+        if (repo.hasNativeSensor()) repo.startNativeSensor()
         refresh()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        repo.stopNativeSensor()
     }
 
     private fun refresh() {
         val history = repo.readMergedHistory(30)
-        if (history.isEmpty()) {
+        Log.w(
+            "StepWatch",
+            "StatsFragment.refresh history.size=${history.size} first=${history.firstOrNull()} last=${history.lastOrNull()} zeppInstalled=${repo.isZeppInstalled()}"
+        )
+        // v3.3 take 2: readMergedHistory always returns [days] rows (never
+        // empty). "Empty" means everything is zero — only show the empty hint
+        // when both Zepp is unavailable AND the native sensor returned no
+        // positive data for today. Otherwise render the rows (with zeros for
+        // past days if Zepp is the only source and isn't authorized).
+        val hasAnyData = history.any { it.steps > 0L }
+        val noSource = !repo.isZeppInstalled() && !repo.hasNativeSensor()
+        if (!hasAnyData && noSource) {
             statsEmpty.visibility = View.VISIBLE
             weeklyChart.bars = emptyList()
             lifetimeTotalSteps.text = "—"
