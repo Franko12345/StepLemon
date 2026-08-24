@@ -1,6 +1,9 @@
 # 🍋 StepLemon — Product Spec
 
-> **Status**: v1.1 (released). v1.2 in development (Zepp parser finalize).
+> **Status:** v1.3 (released). Last meaningful change: v1.3 fixes the "Stats
+> doesn't include today" bug (PR #6, DSH-authored 4-layer fix — see ADR 0006).
+> Next: v1.4 will adapt `parseDailyCursor()` to the real Zepp schema once the
+> user shares the in-app dump.
 
 ## Goal
 
@@ -39,17 +42,19 @@ Inspired by Stepmelon's UX; themed in 🍋.
 
 1. **Today** (default tab) — Triple-ring donut centered, 3 goal cards below,
    3 stat cards (streak / distance / calories) at the bottom. Source pill in
-   the top right (green = Zepp, gray = sensor). Auto-refresh every 2 seconds.
+   the top right (green = Zepp, gray = sensor). Auto-refreshes every 2 seconds.
 2. **Stats** — Weekly bar chart (last 7 days), lifetime totals (steps,
    distance, goals met, days tracked, current streak, longest streak),
-   personal-best cards (most steps, longest streak). Empty state if Zepp is
-   not authorized.
+   personal-best cards (most steps, longest streak). Today's progress is
+   **always included** in the lifetime total (v1.3 fix).
 3. **History** — Period chips (7d / 30d / 90d / all), 3 summary cards,
    per-day list with progress bar (lime if met goal, pink otherwise) and
-   ✅ for met-goal days. Empty state if Zepp is not authorized.
-4. **Settings** — 3 sliders for goal values, data source display, Zepp
-   status, reset button, about text, and a **hidden debug button** to dump
-   Zepp's ContentProvider schema.
+   ✅ for met-goal days. Today is the first row.
+4. **Settings** — 3 sliders for goal values, each with **preset chips** above
+   (Min: 1k/2k/3k/5k/7k; Daily: 3k/5k/8k/10k/12k/15k/20k;
+   Stretch: 10k/12k/15k/20k/25k/30k), data source pill, Zepp status, reset
+   button, about text, and a **hidden debug button** to dump Zepp's
+   ContentProvider schema.
 
 ### Theme
 
@@ -79,13 +84,16 @@ Inspired by Stepmelon's UX; themed in 🍋.
 | Data source 2 | `Sensor.TYPE_STEP_COUNTER` (Android stdlib) | Universal fallback; works without Zepp; see [ADR 0001](decisions/0001-zepp-vs-sensor.md) |
 | Charts | Custom `View` subclasses (`TripleDonutView`, `BarChartView`) | No MPAndroidChart dep (~5MB saved); no proguard headaches |
 | Persistence | `SharedPreferences` | 4 keys, no need for Room |
+| Tests | JUnit4 + Mockito-core (testImplementation only) | See [ADR 0005](decisions/0005-mockito-for-tests.md) |
+| CI | GitHub Actions on every push/PR | Build debug APK + upload as artifact. 2 min runs. |
+| Heavy work | DSH (DeepSeek Harness) on Proxmox LXC | Offload multi-file refactors. See [ADR 0007](decisions/0007-dsh-dispatch-workflow.md) |
 
 ## Open questions
 
 - **What does the Zepp `day_total_summary` provider actually expose?** Current
-  parser is a best-effort guess. Ticket `05-debug-zepp-schema` collects the
-  real schema from a real device and ticket `06-zepp-parser-finalize` adapts
-  the parser. Until those land, history/stats are best-effort.
+  parser is a best-effort table-driven guess (day/date column × step/total
+  column × 3 date formats). Ticket 06 will adapt if needed; v1.3 already
+  works without Zepp (sensor-only path).
 - **Should we add a Health Connect writer** so other apps can see the data?
   Currently out of scope (see Non-goals).
 - **Notification when daily goal is met?** Tempting but it's a battery
@@ -97,6 +105,8 @@ Inspired by Stepmelon's UX; themed in 🍋.
 - Android Auto
 - Wear OS companion
 - Tablet-specific layouts (works but isn't optimized)
+- Badge / achievement system (ticket 07, won't fix this cycle)
+- Sleep / heart-rate / SpO2 reading (ticket 08, won't fix this cycle)
 
 ## See also
 

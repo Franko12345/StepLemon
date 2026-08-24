@@ -3,10 +3,18 @@
 This file is read by humans and by coding agents (Claude, DSH, Hermes, …).
 Keep it short. Detailed rationale lives in `decisions/`.
 
+## Project at a glance
+
+StepLemon is an Android step counter for Xiaomi/MIUI/HyperOS phones. It reads
+steps from the Zepp Life (Mi Fitness) ContentProvider when authorized, with
+the Android `TYPE_STEP_COUNTER` sensor as a fallback. UI is native Views
+(no Compose), charts are hand-rolled custom Views (no third-party chart libs).
+Themed in 🍋 lemon — see [spec.md](./spec.md) for the full product spec.
+
 ## Build environment
 
-This project is **headless-CI-friendly**: it builds without Android Studio.
-The expected local toolchain layout (already installed on the dev VM):
+Headless CI-friendly. The expected local toolchain layout (already installed
+on the dev VM):
 
 ```
 $HOME/sdk/
@@ -48,8 +56,11 @@ unzip -q /tmp/gradle.zip -d ~/sdk
 # Build debug APK
 export JAVA_HOME=$HOME/sdk/jdk17 ANDROID_HOME=$HOME/sdk
 export PATH=$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$HOME/sdk/gradle-8.5/bin:$PATH
-gradle assembleDebug --no-daemon --console=plain
+./gradlew assembleDebug --no-daemon --console=plain
 # → app/build/outputs/apk/debug/app-debug.apk
+
+# Run unit tests
+./gradlew testDebugUnitTest
 
 # Validate APK
 $ANDROID_HOME/build-tools/34.0.0/aapt dump badging app/build/outputs/apk/debug/app-debug.apk | head
@@ -62,18 +73,38 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb logcat -s StepWatch:V
 ```
 
+## CI
+
+Every push to `main` and every PR triggers
+[`.github/workflows/android-debug.yml`](.github/workflows/android-debug.yml),
+which builds the debug APK in ~2 min and uploads it as the
+`StepLemon-debug` artifact (14-day retention). The workflow:
+
+- Uses `actions/checkout@v4`, `actions/setup-java@v4` (Temurin 17),
+  `android-actions/setup-android@v3` (with explicit `packages` input —
+  `api-level` / `build-tools-version` were removed in v3).
+- Caches `~/.gradle/caches` between runs.
+- Runs `./gradlew assembleDebug`.
+- Verifies the APK with `aapt dump badging` + `apksigner verify`.
+- Enforces the 10 MB size budget from `agents.toml [verification]`.
+
+Download artifacts from the Actions tab.
+
 ## Code style
 
-- **Kotlin**: idiomatic; prefer `val` over `var`; no `!!` unless justified with
-  a `// safe: ...` comment.
+- **Kotlin**: idiomatic; prefer `val` over `var`; no `!!` unless justified
+  with a `// safe: ...` comment.
 - **Android Views, not Compose**. Don't add Compose dependencies — see
   [`decisions/0003-native-android-ui.md`](decisions/0003-native-android-ui.md).
 - **Custom Views for charts** (`TripleDonutView`, `BarChartView`). Don't add
   MPAndroidChart or any chart library — it's ~5MB and we have 2 charts.
 - **No new third-party deps** without an ADR. The whole app is
-  AndroidX + Material. Keep it that way.
+  AndroidX + Material + JUnit4 + Mockito-core (test-only). Keep it that way.
 - **Strings go in `strings.xml`**. Don't hardcode English in Kotlin.
 - **Colors go in `colors.xml`**. Don't hardcode `#XXXXXX` in layouts.
+- **No Elvis (`? :`) on the Zepp-vs-native merge path.** Use explicit
+  `when {}` with a zero check. See ADR 0006 for the four-layer bug
+  that was caused by an Elvis misread.
 
 ## Spec-driven development (SDD)
 
@@ -90,6 +121,26 @@ This repo follows the [Matt Pocock SDD workflow](../spec.md):
 Tickets are numbered in implementation order (blockers first). Read each
 ticket's "Spec ref" to know which spec section you're implementing.
 
+## Dispatching heavy work to DSH
+
+For multi-file refactors or cross-cutting bugs (4+ files, multiple
+interacting layers), dispatch to the **DeepSeek Harness (DSH)** running
+on the Proxmox LXC at `dsh.homelab:3080` (CT 200):
+
+```bash
+~/bin/dsh-dispatch \
+  --workspace ~/projetos/StepLemon \
+  --task "Goal: ... Spec ref: ... Acceptance: ... Branch: <exact-name> ... Files: ... Verification: ..." \
+  --timeout 1500
+```
+
+See [`decisions/0007-dsh-dispatch-workflow.md`](decisions/0007-dsh-dispatch-workflow.md)
+for the full operational lessons, including the force-push gotcha.
+
+**The skill `deepseek-harness-dispatch` is the canonical reference.**
+The shim `~/bin/dsh-dispatch` is the actual tool. Use the v2 names
+(`--proxmox-host`, `--lxc-id`, etc.).
+
 ## Files likely to change
 
 | Layer | Files |
@@ -99,3 +150,6 @@ ticket's "Spec ref" to know which spec section you're implementing.
 | Theme | `app/src/main/res/values/{colors,themes,strings}.xml` |
 | Manifest | `app/src/main/AndroidManifest.xml` |
 | Build | `app/build.gradle`, root `build.gradle`, `settings.gradle` |
+| Tests | `app/src/test/java/com/stepwatch/app/StepRepositoryTest.kt` |
+| ADRs | `decisions/NNNN-*.md` (append-only, use new numbers for new decisions) |
+| Tickets | `tickets/NN-*.md` (Status field updated as work progresses) |

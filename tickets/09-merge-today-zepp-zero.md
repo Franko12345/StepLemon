@@ -1,74 +1,41 @@
 # Ticket 09 — Merge today's Zepp-zero with native sensor
 
-- **Status:** 🟡 In progress (branch `fix/merge-today-zepp-zero`)
+- **Status:** ✅ Done (superseded by v3.3 take-2)
 - **Date:** 2026-08-24
-- **Spec ref:** [ADR 0001](../decisions/0001-zepp-vs-sensor.md), [spec.md → Technical choices](../spec.md#technical-choices)
-- **Owner:** Hermes
+- **Spec ref:** [ADR 0001](../decisions/0001-zepp-vs-sensor.md)
+- **Owner:** Hermes → DSH
 - **Depends on:** 01, 02
 - **Blocks:** nothing
 
-## Problem
+## Outcome
 
-`StepRepository.readMergedHistory()` introduced in v1.2 still left today's
-step count out of the lifetime totals.
+Closed by **PR #6** (commit `fa4395b`, DSH-authored, branch
+`fix/v3.3-stats-really-take2` — squashed into `main`). DSH identified that
+the v3.1 fix (PR #2) was only a partial fix; the real bug had **four
+layers** (see ADR 0006 / commit message).
 
-### Root cause
+## Final state of the merge logic
 
-`readZeppHistory()` always populates today's row (filling `0L` when Zepp
-hasn't yet consolidated today's total — Zepp writes daily totals at
-midnight, not in real time). The merge logic used:
+`StepRepository.readMergedHistory()` now:
 
-```kotlin
-val steps = zepp[date] ?: when (date) {
-    today -> nativeToday
-    else -> 0L
-}
-```
+1. Loads the persisted `lastRawTotal` / `midnightRawTotal` baseline eagerly
+   in `init {}` (so any repo instance has a usable value).
+2. Uses an explicit `when` check (no Elvis) to fall back to the native
+   sensor when today's Zepp value is `0`.
+3. Has no Elvis operator remaining on the merge path.
+4. Logs each day's resolution to `Log.w(TAG, "readMergedHistory[...]")`
+   so the next debug round can verify via `adb logcat -s StepWatch:V`.
 
-The `?:` Elvis only fires when `zepp[date]` is **null**, but Zepp returns a
-row with value `0` for today — so the Elvis never fired, and today's
-sensor-native value was always discarded.
+## Layer-by-layer
 
-### Fix
+| Layer | Bug | Fix |
+|-------|-----|-----|
+| 1 | Elvis `?:` silently coerced `null` (no baseline) to `0` | Removed Elvis, explicit `when` |
+| 2 | Baseline not loaded eagerly | `init {}` reads from SharedPreferences |
+| 3 | Stats/History never called `startNativeSensor()` | Added start/stop in onResume/onPause |
+| 4 | Empty-state hint too eager | Only show when both Zepp off and native = 0 |
 
-When today's Zepp row is `0` (or absent) AND the native sensor has a
-positive value, use the native sensor. Zepp's value still wins when it
-is positive (i.e. for past days, or once Zepp has consolidated today).
+## Status update history
 
-```kotlin
-val zeppSteps = zepp[date] ?: 0L
-val steps: Long = when {
-    date == today && zeppSteps <= 0L && nativeToday > 0L -> nativeToday
-    else -> zeppSteps
-}
-```
-
-## Acceptance criteria
-
-- [x] When Zepp returns today's row as `0` and the native sensor reports
-      a positive value, the merged history uses the native value.
-- [x] When Zepp returns a positive value for today (after midnight rollover
-      has written it), the Zepp value is used (native sensor is ignored).
-- [x] Past days are unaffected — still come from Zepp directly.
-- [ ] APK rebuilt and tested by the user (currently in this branch).
-
-## Files
-
-- `app/src/main/java/com/stepwatch/app/StepRepository.kt`
-
-## Smoke
-
-1. Install the rebuilt APK on the Poco M5.
-2. Take a walk; observe the "Today" tab counting up.
-3. Switch to "Stats" — the "Passos totais" card should now include today's
-   progress (visible as soon as the user takes the first step).
-4. Compare to Zepp's own count: should match within ±1 step (Zepp may
-   consolidate slightly differently).
-
-## Notes
-
-- If the native sensor is `0` (just-installed, hasn't received events yet)
-  AND Zepp is `0`, today shows as `0` — correct.
-- If Zepp's `day_total_summary` returns `null` entirely (provider
-  unauthorized), the merged history only has native-today — still better
-  than v1.1 (everything blank).
+- 2026-08-24 (PR #2): v3.1 partial fix — Elvis only. Did not resolve the bug.
+- 2026-08-24 (PR #6): v3.3 take-2 — full 4-layer fix via DSH. Marked ✅ Done.

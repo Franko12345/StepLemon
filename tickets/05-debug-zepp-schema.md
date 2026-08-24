@@ -1,8 +1,8 @@
 # Ticket 05 — Debug button: dump Zepp schema
 
-- **Status:** 🟡 In progress
+- **Status:** ✅ Done (merged in PR #4, commit `8aedf14`)
 - **Date:** 2026-08-24
-- **Spec ref:** [ADR 0004](../decisions/0004-debug-helper-in-app.md)
+- **Spec ref:** [ADR 0001](../decisions/0001-zepp-vs-sensor.md), [ADR 0004](../decisions/0004-debug-helper-in-app.md)
 - **Owner:** Franco
 - **Depends on:** 04
 - **Blocks:** 06
@@ -19,7 +19,7 @@ the result via `Intent.ACTION_SEND`.
 - [x] `SettingsFragment` has a "Debug: schema Zepp" button (`R.id.btn_debug_zepp`).
 - [x] Tapping the button fires an `ACTION_SEND` chooser with the dump as `Intent.EXTRA_TEXT`.
 - [x] Failures are reported in the dump (`SecurityException`, `Exception`) rather than thrown.
-- [ ] **User has shared the dump via Telegram.** _(Waiting on user.)_
+- [ ] **User has shared the dump via Telegram.** _(Still waiting — see ticket 06.)_
 
 ## Files
 
@@ -40,3 +40,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 When the user shares the dump, ticket **06** (`06-zepp-parser-finalize.md`)
 adapts the parser to the real schema.
+
+## Status update history
+
+- 2026-08-24: button shipped in PR #4, marked ✅ Done.
