@@ -7,6 +7,13 @@
     <uses-permission android:name="com.xiaomi.hm.health.WRITE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- v1.4 (ADR 0008): alarme exato para o rollover de meia-noite.
+         SCHEDULE_EXACT_ALARM é a permissão normal no Android 12+;
+         USE_EXACT_ALARM é a alternativa "app de alarme/calendário" no Android 13+
+         (não requer grant do usuário). Como nosso alarme é diário, optamos por
+         SCHEDULE_EXACT_ALARM e caímos pra setWindow se o usuário não conceder. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true" />
     <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="false" />
@@ -38,6 +45,15 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
+        <!-- v1.4 (ADR 0008): receiver do rollover de meia-noite.
+             Não-exportado: só o nosso próprio AlarmManager dispara.
+             Sem intent-filter — só recebe o broadcast explícito do nosso
+             PendingIntent (ACTION_ROLLOVER). -->
+        <receiver
+            android:name=".MidnightRolloverReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

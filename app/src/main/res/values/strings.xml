@@ -74,4 +74,12 @@
     <string name="zepp_not_installed">Zepp não encontrado</string>
     <string name="zepp_authorized">Acesso liberado</string>
     <string name="zepp_denied">Sem acesso — abra Zepp e autorize</string>
+
+    <!-- v1.4 (ADR 0008): opt-in midnight rollover -->
+    <string name="settings_rollover_title">Salvamento automático</string>
+    <string name="settings_rollover_switch">Salvar passos automaticamente à meia-noite</string>
+    <string name="settings_rollover_desc">Opt-in. Dispara um alarme único às 23:55 (com pequeno atraso aleatório) que persiste o valor do dia no histórico local antes da meia-noite. Nenhuma notificação, nenhum serviço em background contínuo. Se o Zepp Life estiver autorizado, ele é usado como fonte; senão, o sensor nativo.</string>
+    <string name="settings_rollover_alarm_denied">Permissão \"alarmes exatos\" não concedida — usando janela aproximada. Conceda em Ajustes do Android pra precisão total.</string>
+    <string name="settings_rollover_alarm_scheduled">Alarme agendado</string>
+    <string name="settings_rollover_alarm_canceled">Alarme cancelado</string>
 </resources>

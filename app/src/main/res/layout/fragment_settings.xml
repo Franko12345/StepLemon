@@ -285,6 +285,55 @@
 
         </LinearLayout>
 
+        <!-- v1.4 (ADR 0008): card opt-in do rollover de meia-noite -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_stat_card">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_rollover_title"
+                android:textColor="@color/lemon_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_rollover_switch"
+                    android:textColor="@color/lemon_on_surface"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_rollover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/rollover_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_rollover_desc"
+                android:textColor="@color/lemon_text_dim"
+                android:textSize="12sp"
+                android:lineSpacingExtra="2dp"
+                android:paddingTop="4dp"/>
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

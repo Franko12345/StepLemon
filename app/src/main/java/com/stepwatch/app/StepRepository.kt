@@ -40,6 +40,11 @@ class StepRepository(private val context: Context) : SensorEventListener {
     val goalPrefs: SharedPreferences =
         context.getSharedPreferences("stepwatch_goals", Context.MODE_PRIVATE)
 
+    // v1.4: histórico local de passos por dia (escrito pelo MidnightRolloverReceiver
+    // ou pelo readMergedHistory quando Zepp não está disponível). ADR 0008.
+    private val historyPrefs: SharedPreferences =
+        context.getSharedPreferences("stepwatch_history", Context.MODE_PRIVATE)
+
     @Volatile private var lastRawTotal: Long = -1L
     @Volatile private var midnightRawTotal: Long = -1L
     @Volatile private var midnightDate: String = ""
@@ -182,6 +187,12 @@ class StepRepository(private val context: Context) : SensorEventListener {
         else -> s
     }
 
+    /**
+     * Versão internal de [normalizeDate] para os testes JVM. Mesma implementação;
+     * marcada internal para que o StepRepositoryTest (mesmo módulo) consiga chamar.
+     */
+    internal fun normalizeDateForTest(s: String): String = normalizeDate(s)
+
     fun startNativeSensor() {
         val s = stepCounterSensor
         if (s == null) {
@@ -273,6 +284,10 @@ class StepRepository(private val context: Context) : SensorEventListener {
         } else {
             nativeTodayValue = nativeToday
         }
+        // v1.4: histórico local persistido pelo MidnightRolloverReceiver (ADR 0008).
+        // É a 3ª camada — depois de Zepp e do sensor nativo. Sem Elvis; usamos
+        // lookup explícito e retornamos null quando ausente.
+        val localHistory: Map<String, Long> = readLocalHistoryMap()
         val today = todayDate()
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val cal = Calendar.getInstance()
@@ -293,15 +308,31 @@ class StepRepository(private val context: Context) : SensorEventListener {
             // missing entry with 0 (not null) — so today's native fallback was
             // permanently dead. The Elvis on the merge logic is replaced with
             // an explicit check on the value, not just nullability.
+            //
+            // v1.4 (ADR 0008): for PAST days, if Zepp is 0, fall back to the
+            // local history persisted by MidnightRolloverReceiver. This is
+            // what makes "days anteriores somem" stop happening for users who
+            // have the rollover opt-in enabled (or who opened the app at
+            // 23:55 once).
             val steps: Long
-            if (isToday && zeppStepsValue <= 0L && nativeTodayValue > 0L) {
-                steps = nativeTodayValue
+            if (isToday) {
+                if (zeppStepsValue <= 0L && nativeTodayValue > 0L) {
+                    steps = nativeTodayValue
+                } else {
+                    steps = zeppStepsValue
+                }
             } else {
-                steps = zeppStepsValue
+                // past day: Zepp primeiro, depois histórico local
+                if (zeppStepsValue > 0L) {
+                    steps = zeppStepsValue
+                } else {
+                    val localSteps = localHistory[date]
+                    steps = if (localSteps == null) 0L else localSteps
+                }
             }
             Log.w(
                 TAG,
-                "readMergedHistory[$date] isToday=$isToday zepp=$zeppStepsValue nativeToday=$nativeTodayValue → $steps"
+                "readMergedHistory[$date] isToday=$isToday zepp=$zeppStepsValue nativeToday=$nativeTodayValue local=${localHistory[date]} → $steps"
             )
             out.add(DailySteps(date, steps))
             cal.add(Calendar.DAY_OF_YEAR, -1)
@@ -335,7 +366,7 @@ class StepRepository(private val context: Context) : SensorEventListener {
         }
     }
 
-    private fun todayDate(): String =
+    internal fun todayDate(): String =
         SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
 
     /**
@@ -378,6 +409,53 @@ class StepRepository(private val context: Context) : SensorEventListener {
     }
 
     data class DailySteps(val date: String, val steps: Long)
+
+    // ---- v1.4: histórico local (opt-in rollover, ADR 0008) ----
+
+    /**
+     * Lê todas as entradas "d_<date>" do SharedPreferences "stepwatch_history"
+     * e devolve um Map<String, Long> com chave = "yyyy-MM-dd".
+     * Sem Elvis no caller — explicit if/else (ver ADR 0006).
+     */
+    private fun readLocalHistoryMap(): Map<String, Long> {
+        val out = HashMap<String, Long>()
+        for ((k, v) in historyPrefs.all) {
+            if (k.startsWith("d_") && v is Long) {
+                out[k.removePrefix("d_")] = v
+            } else if (k.startsWith("d_") && v is Int) {
+                // Defensivo: alguns firmwares gravam Int em vez de Long.
+                out[k.removePrefix("d_")] = v.toLong()
+            }
+        }
+        Log.w(TAG, "readLocalHistoryMap: ${out.size} entries")
+        return out
+    }
+
+    /**
+     * Persiste um par (data → passos) no SharedPreferences "stepwatch_history".
+     * Idempotente: chamar duas vezes com a mesma data sobrescreve.
+     *
+     * @param source "zepp" ou "sensor" — só pra debug; não usado no merge path.
+     */
+    fun saveHistoryEntry(date: String, steps: Long, source: String) {
+        historyPrefs.edit()
+            .putLong(historyKey(date), steps)
+            .putString(historySourceKey(date), source)
+            .apply()
+        Log.w(TAG, "saveHistoryEntry: date=$date steps=$steps source=$source")
+    }
+
+    /** Lê um valor do histórico local. Retorna null se não foi persistido. */
+    fun loadHistoryEntry(date: String): Long? {
+        if (!historyPrefs.contains(historyKey(date))) return null
+        return historyPrefs.getLong(historyKey(date), 0L)
+    }
+
+    /** Quantas entradas tem no histórico local (debug / Stats futura). */
+    fun historySize(): Int = historyPrefs.all.size / 2 // cada entry tem key + source
+
+    private fun historyKey(date: String): String = "d_$date"
+    private fun historySourceKey(date: String): String = "s_$date"
 
     companion object {
         private const val TAG = "StepWatch"

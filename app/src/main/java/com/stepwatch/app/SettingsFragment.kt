@@ -1,8 +1,10 @@
 package com.stepwatch.app
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -12,6 +14,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import java.util.Locale
@@ -29,6 +32,10 @@ class SettingsFragment : Fragment() {
     private lateinit var settingsSource: TextView
     private lateinit var settingsZeppStatus: TextView
     private lateinit var rootView: View
+    // v1.4 (ADR 0008): opt-in rollover
+    private lateinit var switchRollover: SwitchCompat
+    private lateinit var rolloverStatus: TextView
+    private lateinit var rolloverPrefs: SharedPreferences
 
     // Preset definitions — keep in sync with tickets/10-goal-preset-chips.md.
     private val minPresets = listOf(1000, 2000, 3000, 5000, 7000)
@@ -52,6 +59,18 @@ class SettingsFragment : Fragment() {
         settingsSource = view.findViewById(R.id.settings_source)
         settingsZeppStatus = view.findViewById(R.id.settings_zepp_status)
         rootView = view
+
+        // v1.4 (ADR 0008): opt-in rollover
+        switchRollover = view.findViewById(R.id.switch_rollover)
+        rolloverStatus = view.findViewById(R.id.rollover_status)
+        rolloverPrefs = requireContext().applicationContext
+            .getSharedPreferences("stepwatch_rollover", Context.MODE_PRIVATE)
+        val initiallyEnabled = rolloverPrefs.getBoolean("enabled", false)
+        // Listener atribuído APÓS setChecked, pra não disparar toggle acidentalmente.
+        switchRollover.isChecked = initiallyEnabled
+        switchRollover.setOnCheckedChangeListener { _, checked ->
+            onRolloverToggled(checked)
+        }
 
         seekMin.max = 19000
         seekDaily.max = 28000
@@ -139,6 +158,31 @@ class SettingsFragment : Fragment() {
             !repo.isZeppInstalled() -> getString(R.string.zepp_not_installed)
             !zeppAuthorized -> getString(R.string.zepp_denied)
             else -> getString(R.string.zepp_authorized)
+        }
+    }
+
+    // ---- v1.4 (ADR 0008): opt-in rollover ----
+
+    private fun onRolloverToggled(checked: Boolean) {
+        val ctx = requireContext().applicationContext
+        if (checked) {
+            try {
+                RolloverScheduler.schedule(ctx)
+                rolloverPrefs.edit().putBoolean("enabled", true).apply()
+                rolloverStatus.text = getString(R.string.settings_rollover_alarm_scheduled)
+                Log.w("StepWatch", "SettingsFragment: rollover enabled; alarm scheduled")
+            } catch (e: Exception) {
+                // Falha ao agendar (ex.: sem permissão SCHEDULE_EXACT_ALARM).
+                // Mantém switch ON, mostra aviso; toggle não é revertido para o
+                // usuário poder ver o estado e agir nos Ajustes do Android.
+                rolloverStatus.text = getString(R.string.settings_rollover_alarm_denied)
+                Log.w("StepWatch", "SettingsFragment: rollover schedule failed: ${e.message}")
+            }
+        } else {
+            RolloverScheduler.cancel(ctx)
+            rolloverPrefs.edit().putBoolean("enabled", false).apply()
+            rolloverStatus.text = getString(R.string.settings_rollover_desc)
+            Log.w("StepWatch", "SettingsFragment: rollover disabled; alarm canceled")
         }
     }
 

@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -30,6 +32,32 @@ class MainActivity : AppCompatActivity() {
         }
 
         ensurePermission()
+
+        // v1.4 (ADR 0008): reagenda o alarme de rollover se a preferência
+        // estiver ON. Feito num Handler.post pra não atrasar a primeira
+        // renderização. Idempotente: se já estiver agendado, é no-op.
+        Handler(Looper.getMainLooper()).post {
+            ensureRolloverAlarm()
+        }
+    }
+
+    /**
+     * Se o usuário ativou o rollover em uma sessão anterior mas o dispositivo
+     * foi reiniciado (AlarmManager esquece alarmes no boot), reagenda aqui.
+     */
+    private fun ensureRolloverAlarm() {
+        val prefs = getSharedPreferences("stepwatch_rollover", MODE_PRIVATE)
+        val enabled = prefs.getBoolean("enabled", false)
+        if (!enabled) return
+        if (RolloverScheduler.isScheduled(this)) {
+            // Já está agendado — não duplicar.
+            return
+        }
+        try {
+            RolloverScheduler.schedule(this)
+        } catch (e: Exception) {
+            // Permissão SCHEDULE_EXACT_ALARM negada, etc. Silencioso — toggle vai re-tentar.
+        }
     }
 
     fun selectTab(itemId: Int) {
