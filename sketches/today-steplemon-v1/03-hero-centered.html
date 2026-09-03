@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StepLemon · Today — Hero Centered</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1411;
+    --surface: #152019;
+    --on-surface: #E8F2EA;
+    --on-surface-dim: #8FA398;
+    --outline: rgba(232, 242, 234, 0.06);
+    --primary: #9CCC65;
+    --secondary: #D4E157;
+    --pink: #F472B6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050807;
+    color: var(--on-surface);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px;
+  }
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: linear-gradient(180deg, #0E1411 0%, #0a100d 100%);
+    border: 1px solid var(--outline);
+    border-radius: 40px;
+    overflow: hidden;
+    padding: 16px 24px 80px;
+    position: relative;
+  }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--on-surface-dim);
+  }
+  .topbar .pill {
+    padding: 5px 10px;
+    border-radius: 9999px;
+    background: rgba(156, 204, 101, 0.12);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid rgba(156, 204, 101, 0.25);
+  }
+  .hero {
+    text-align: center;
+    padding: 16px 0 24px;
+  }
+  .donut-wrap {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0 auto;
+  }
+  .donut-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 24px rgba(156, 204, 101, 0.15));
+  }
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .donut-value {
+    font-size: 72px;
+    font-weight: 700;
+    letter-spacing: -2.5px;
+    color: var(--secondary);
+    line-height: 1;
+  }
+  .donut-value .small {
+    font-size: 22px;
+    color: var(--on-surface-dim);
+    font-weight: 500;
+    margin-left: 6px;
+    letter-spacing: -0.3px;
+  }
+  .donut-label {
+    font-size: 11px;
+    color: var(--on-surface-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .donut-progress {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 600;
+    letter-spacing: 0.4px;
+  }
+  .section {
+    margin-top: 28px;
+  }
+  .section-label {
+    font-size: 10px;
+    color: var(--on-surface-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .goals {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .goal {
+    text-align: center;
+    padding: 16px 6px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--outline);
+    position: relative;
+    transition: all 0.2s;
+  }
+  .goal.active {
+    background: rgba(156, 204, 101, 0.08);
+    border-color: rgba(156, 204, 101, 0.4);
+  }
+  .goal.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: 24px; height: 3px;
+    border-radius: 2px;
+    background: var(--primary);
+  }
+  .goal-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  .goal-v {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+  .goal-l {
+    font-size: 10px;
+    color: var(--on-surface-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--outline);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .stat .ic {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .stat .body { flex: 1; }
+  .stat .val {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .stat .lbl {
+    font-size: 11px;
+    color: var(--on-surface-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 70px;
+    background: rgba(14, 20, 17, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--outline);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .nav { color: var(--on-surface-dim); padding: 8px 18px; border-radius: 10px; }
+  .nav.active { color: var(--secondary); background: rgba(212, 225, 87, 0.1); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="topbar">
+    <span>9:41</span>
+    <span class="pill">🍋 Zepp ativo</span>
+    <span>85%</span>
+  </div>
+
+  <div class="hero">
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 280 280">
+        <circle cx="140" cy="140" r="118" fill="none" stroke="#1B2A21" stroke-width="18"/>
+        <circle cx="140" cy="140" r="118" fill="none" stroke="#9CCC65" stroke-width="18"
+          stroke-dasharray="230 741" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="140" cy="140" r="92" fill="none" stroke="#1B2A21" stroke-width="18"/>
+        <circle cx="140" cy="140" r="92" fill="none" stroke="#D4E157" stroke-width="18"
+          stroke-dasharray="155 578" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="140" cy="140" r="66" fill="none" stroke="#1B2A21" stroke-width="18"/>
+        <circle cx="140" cy="140" r="66" fill="none" stroke="#F472B6" stroke-width="18"
+          stroke-dasharray="50 414" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+      <div class="donut-center">
+        <div class="donut-value">8.427<span class="small">passos</span></div>
+        <div class="donut-label">hoje · terça</div>
+        <div class="donut-progress">+312 nas últimas horas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">metas</div>
+    <div class="goals">
+      <div class="goal">
+        <div class="goal-icon">🎯</div>
+        <div class="goal-v" style="color:var(--primary)">3k</div>
+        <div class="goal-l">Mínima</div>
+      </div>
+      <div class="goal active">
+        <div class="goal-icon">⚡</div>
+        <div class="goal-v" style="color:var(--secondary)">10k</div>
+        <div class="goal-l">Diária</div>
+      </div>
+      <div class="goal">
+        <div class="goal-icon">🔥</div>
+        <div class="goal-v" style="color:var(--pink)">15k</div>
+        <div class="goal-l">Limite</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">estatísticas do dia</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="ic">🔥</div>
+        <div class="body">
+          <div class="val">7 dias</div>
+          <div class="lbl">Sequência</div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="ic">📏</div>
+        <div class="body">
+          <div class="val">6.3 km</div>
+          <div class="lbl">Distância</div>
+        </div>
+      </div>
+      <div class="stat" style="grid-column:span 2">
+        <div class="ic">🍋</div>
+        <div class="body">
+          <div class="val">337 kcal</div>
+          <div class="lbl">Calorias queimadas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav active">Hoje</div>
+    <div class="nav">Stats</div>
+    <div class="nav">Histórico</div>
+    <div class="nav">Ajustes</div>
+  </div>
+</div>
+</body>
+</html>
