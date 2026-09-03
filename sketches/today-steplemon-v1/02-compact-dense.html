@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StepLemon · Today — Compact Dense</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1411;
+    --surface: #152019;
+    --surface-elev: #1B2A21;
+    --on-surface: #E8F2EA;
+    --on-surface-dim: #8FA398;
+    --outline: rgba(232, 242, 234, 0.08);
+    --outline-strong: rgba(232, 242, 234, 0.14);
+    --primary: #9CCC65;
+    --secondary: #D4E157;
+    --pink: #F472B6;
+    --font-display: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050807;
+    color: var(--on-surface);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px;
+  }
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: 28px;
+    overflow: hidden;
+    padding: 14px 16px 80px;
+    font-feature-settings: 'cv11';
+  }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--on-surface-dim);
+  }
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 4px 18px;
+    border-bottom: 1px solid var(--outline);
+    margin-bottom: 16px;
+  }
+  .hero-donut {
+    width: 96px; height: 96px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .hero-donut svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .hero-info { flex: 1; min-width: 0; }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(156, 204, 101, 0.15);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+  }
+  .hero-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
+  .hero-value {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    color: var(--secondary);
+  }
+  .hero-unit {
+    font-size: 14px;
+    color: var(--on-surface-dim);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .hero-sub {
+    font-size: 11px;
+    color: var(--on-surface-dim);
+    margin-top: 4px;
+    letter-spacing: 0.2px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .mini {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .mini .v {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+  }
+  .mini .l {
+    font-size: 9.5px;
+    color: var(--on-surface-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .mini.green .v { color: var(--primary); }
+  .mini.yellow .v { color: var(--secondary); }
+  .mini.pink .v { color: var(--pink); }
+  .divider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 4px 8px;
+  }
+  .divider-row .label {
+    font-size: 10px;
+    color: var(--on-surface-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .divider-row .line {
+    flex: 1;
+    height: 1px;
+    background: var(--outline);
+  }
+  .progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .progress-row {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .progress-row.active {
+    border-color: rgba(212, 225, 87, 0.5);
+    background: linear-gradient(90deg, rgba(212, 225, 87, 0.06), transparent);
+  }
+  .progress-row .name {
+    color: var(--on-surface-dim);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+  }
+  .progress-row .bar {
+    height: 6px;
+    background: var(--surface-elev);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-row .fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+  .progress-row .fill.green { background: var(--primary); }
+  .progress-row .fill.yellow { background: var(--secondary); }
+  .progress-row .fill.pink { background: var(--pink); }
+  .progress-row .val {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--on-surface);
+  }
+  .hint {
+    margin-top: 12px;
+    padding: 8px 10px;
+    background: rgba(244, 114, 182, 0.05);
+    border-radius: 8px;
+    font-size: 10.5px;
+    color: var(--on-surface-dim);
+    line-height: 1.4;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .hint .ico { color: var(--pink); font-weight: 700; }
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--outline);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .nav { color: var(--on-surface-dim); padding: 6px 14px; border-radius: 8px; }
+  .nav.active { color: var(--secondary); background: rgba(212, 225, 87, 0.1); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="topbar">
+    <span>9:41</span>
+    <span>ter 03/09</span>
+    <span>85%</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-donut">
+      <svg viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="40" fill="none" stroke="#1B2A21" stroke-width="6"/>
+        <circle cx="48" cy="48" r="40" fill="none" stroke="#9CCC65" stroke-width="6"
+          stroke-dasharray="80 251" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="48" cy="48" r="30" fill="none" stroke="#1B2A21" stroke-width="6"/>
+        <circle cx="48" cy="48" r="30" fill="none" stroke="#D4E157" stroke-width="6"
+          stroke-dasharray="60 188" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="48" cy="48" r="20" fill="none" stroke="#1B2A21" stroke-width="6"/>
+        <circle cx="48" cy="48" r="20" fill="none" stroke="#F472B6" stroke-width="6"
+          stroke-dasharray="20 126" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="hero-info">
+      <div class="hero-pill"><span class="dot"></span>Zepp · ativo</div>
+      <div class="hero-value">8.427<span class="hero-unit">passos</span></div>
+      <div class="hero-sub">+312 desde as 8h</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="mini green">
+      <div class="v">7</div>
+      <div class="l">dias streak</div>
+    </div>
+    <div class="mini">
+      <div class="v">6.3<span style="font-size:10px;color:var(--on-surface-dim)">km</span></div>
+      <div class="l">distância</div>
+    </div>
+    <div class="mini">
+      <div class="v">337</div>
+      <div class="l">calorias</div>
+    </div>
+  </div>
+
+  <div class="divider-row">
+    <span class="label">Progresso metas</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="progress-list">
+    <div class="progress-row">
+      <span class="name">Mínima</span>
+      <div class="bar"><div class="fill green" style="width:100%"></div></div>
+      <span class="val">8.427/3k</span>
+    </div>
+    <div class="progress-row active">
+      <span class="name">Diária</span>
+      <div class="bar"><div class="fill yellow" style="width:84%"></div></div>
+      <span class="val">8.427/10k</span>
+    </div>
+    <div class="progress-row">
+      <span class="name">Limite</span>
+      <div class="bar"><div class="fill pink" style="width:56%"></div></div>
+      <span class="val">8.427/15k</span>
+    </div>
+  </div>
+
+  <div class="hint">
+    <span class="ico">!</span>
+    Histórico multi-dia precisa do Zepp Life autorizado.
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav active">Hoje</div>
+    <div class="nav">Stats</div>
+    <div class="nav">Histórico</div>
+    <div class="nav">Ajustes</div>
+  </div>
+</div>
+</body>
+</html>

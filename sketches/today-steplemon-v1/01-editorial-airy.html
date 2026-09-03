@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StepLemon · Today — Editorial Airy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1411;
+    --surface: #152019;
+    --surface-elev: #1B2A21;
+    --on-surface: #E8F2EA;
+    --on-surface-dim: #8FA398;
+    --outline: rgba(232, 242, 234, 0.08);
+    --primary: #9CCC65;
+    --secondary: #D4E157;
+    --pink: #F472B6;
+    --orange: #F59E0B;
+    --cyan: #22D3EE;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--on-surface);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px;
+  }
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    padding: 16px 20px 32px;
+  }
+  .status-bar {
+    height: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--on-surface-dim);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.05px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0 28px;
+  }
+  .greeting {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    line-height: 1.1;
+  }
+  .greeting .accent { color: var(--secondary); }
+  .greeting .sub {
+    display: block;
+    font-size: 14px;
+    color: var(--on-surface-dim);
+    font-weight: 400;
+    margin-top: 4px;
+    letter-spacing: -0.1px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(156, 204, 101, 0.12);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid rgba(156, 204, 101, 0.25);
+  }
+  .pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 6px var(--primary);
+  }
+  .donut-section {
+    text-align: center;
+    padding: 12px 0 8px;
+  }
+  .donut-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 12px;
+  }
+  .donut-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .donut-value {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -1.6px;
+    color: var(--secondary);
+    line-height: 1;
+  }
+  .donut-value .unit {
+    font-size: 16px;
+    color: var(--on-surface-dim);
+    font-weight: 500;
+    margin-left: 4px;
+    letter-spacing: -0.2px;
+  }
+  .donut-label {
+    font-size: 12px;
+    color: var(--on-surface-dim);
+    margin-top: 4px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .goals-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .goal-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 20px;
+    padding: 16px 8px 14px;
+    text-align: center;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .goal-card.active {
+    background: linear-gradient(180deg, rgba(156, 204, 101, 0.18), rgba(156, 204, 101, 0.04));
+    border-color: rgba(156, 204, 101, 0.5);
+    box-shadow: 0 0 0 1px rgba(156, 204, 101, 0.4) inset;
+  }
+  .goal-icon {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.04);
+    font-size: 16px;
+  }
+  .goal-card.active .goal-icon {
+    background: rgba(156, 204, 101, 0.2);
+  }
+  .goal-value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .goal-label {
+    font-size: 10px;
+    color: var(--on-surface-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .g-min { color: var(--primary); }
+  .g-daily { color: var(--secondary); }
+  .g-stretch { color: var(--pink); }
+  .section-label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-surface-dim);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 14px 8px;
+    text-align: center;
+  }
+  .stat-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--on-surface-dim);
+    letter-spacing: 0.3px;
+  }
+  .hint {
+    margin-top: 8px;
+    padding: 12px 16px;
+    background: rgba(244, 114, 182, 0.06);
+    border: 1px solid rgba(244, 114, 182, 0.2);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--on-surface-dim);
+    line-height: 1.5;
+    letter-spacing: -0.1px;
+  }
+  .hint strong { color: var(--pink); font-weight: 600; }
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: var(--surface);
+    border-top: 1px solid var(--outline);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 12px;
+  }
+  .nav-item {
+    color: var(--on-surface-dim);
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+  .nav-item.active {
+    color: var(--secondary);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>🍋</span>
+    <span>85%</span>
+  </div>
+
+  <div class="header">
+    <div class="greeting">
+      Bom dia<span class="accent">.</span>
+      <span class="sub">terça-feira, 3 de setembro</span>
+    </div>
+    <span class="pill"><span class="dot"></span>Zepp</span>
+  </div>
+
+  <div class="donut-section">
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 220 220">
+        <circle cx="110" cy="110" r="92" fill="none" stroke="#1B2A21" stroke-width="14"/>
+        <circle cx="110" cy="110" r="92" fill="none" stroke="#9CCC65" stroke-width="14"
+          stroke-dasharray="180 578" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="110" cy="110" r="72" fill="none" stroke="#1B2A21" stroke-width="14"/>
+        <circle cx="110" cy="110" r="72" fill="none" stroke="#D4E157" stroke-width="14"
+          stroke-dasharray="120 452" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle cx="110" cy="110" r="52" fill="none" stroke="#1B2A21" stroke-width="14"/>
+        <circle cx="110" cy="110" r="52" fill="none" stroke="#F472B6" stroke-width="14"
+          stroke-dasharray="40 326" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+      <div class="donut-center">
+        <div class="donut-value">8.427<span class="unit">passos</span></div>
+        <div class="donut-label">hoje</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Metas</div>
+  <div class="goals-row">
+    <div class="goal-card">
+      <div class="goal-icon">🎯</div>
+      <div class="goal-value g-min">3k</div>
+      <div class="goal-label">Mínima</div>
+    </div>
+    <div class="goal-card active">
+      <div class="goal-icon">⚡</div>
+      <div class="goal-value g-daily">10k</div>
+      <div class="goal-label">Diária</div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-icon">🔥</div>
+      <div class="goal-value g-stretch">15k</div>
+      <div class="goal-label">Limite</div>
+    </div>
+  </div>
+
+  <div class="section-label">Hoje</div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value">7</div>
+      <div class="stat-label">Sequência</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📏</div>
+      <div class="stat-value">6.3<span style="font-size:11px;color:var(--on-surface-dim);font-weight:500">km</span></div>
+      <div class="stat-label">Distância</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value">337</div>
+      <div class="stat-label">Calorias</div>
+    </div>
+  </div>
+
+  <div class="hint">
+    <strong>Histórico</strong> precisa do Zepp Life instalado e autorizado.
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active">Hoje</div>
+    <div class="nav-item">Stats</div>
+    <div class="nav-item">Histórico</div>
+    <div class="nav-item">Ajustes</div>
+  </div>
+</div>
+</body>
+</html>
