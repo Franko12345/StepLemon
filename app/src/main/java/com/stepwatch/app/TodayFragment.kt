@@ -37,6 +37,9 @@ class TodayFragment : Fragment() {
     private lateinit var cardDistanceValue: TextView
     private lateinit var cardFloorsValue: TextView
     private lateinit var zeppRequiredText: TextView
+    // Ticket 12 / ADR 0009: subtle caption when the sensor baseline was
+    // captured in this session (on resume, not at first sensor event).
+    private lateinit var captionPreOpen: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private val refresher = object : Runnable {
@@ -67,6 +70,7 @@ class TodayFragment : Fragment() {
         cardDistanceValue = view.findViewById(R.id.card_distance_value)
         cardFloorsValue = view.findViewById(R.id.card_floors_value)
         zeppRequiredText = view.findViewById(R.id.zepp_required_text)
+        captionPreOpen = view.findViewById(R.id.caption_pre_open)
 
         // Update goal values text from prefs
         goalMinValue.text = formatK(repo.goalMinimum)
@@ -110,11 +114,20 @@ class TodayFragment : Fragment() {
 
         donut.steps = steps
         stepsValue.text = if (steps == 0L) "0" else formatInt(steps)
+        // Hoist once: the field is @Volatile internal and used 3× below.
+        val captured = repo.midnightCapturedAt
         sourcePill.text = when {
             hasZepp -> getString(R.string.source_zepp)
+            nativeSteps != null && captured != null ->
+                getString(R.string.source_sensor_captured, formatHourMinute(captured))
             nativeSteps != null -> getString(R.string.source_sensor)
             else -> getString(R.string.source_none)
         }
+        // Caption only when (a) the active source is the native sensor AND
+        // (b) the baseline was captured in this process lifetime (so the user
+        // can tell the count started at app-open, not at first step).
+        val captionVisible = !hasZepp && nativeSteps != null && captured != null
+        captionPreOpen.visibility = if (captionVisible) View.VISIBLE else View.GONE
 
         // Highlight active goal card
         val active = when {
@@ -143,4 +156,7 @@ class TodayFragment : Fragment() {
 
     private fun formatInt(n: Long): String =
         String.format(Locale.getDefault(), "%,d", n).replace(',', '.')
+
+    private fun formatHourMinute(epochMs: Long): String =
+        SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(epochMs))
 }

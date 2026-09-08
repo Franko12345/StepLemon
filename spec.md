@@ -1,9 +1,11 @@
 # 🍋 StepLemon — Product Spec
 
-> **Status:** v1.3 (released). Last meaningful change: v1.3 fixes the "Stats
-> doesn't include today" bug (PR #6, DSH-authored 4-layer fix — see ADR 0006).
-> Next: v1.4 will adapt `parseDailyCursor()` to the real Zepp schema once the
-> user shares the in-app dump.
+> **Status:** v1.5 (in progress — ticket 12, baseline on resume).
+> Last meaningful change: v1.4 added an opt-in midnight rollover
+> (PR #8, ADR 0008). v1.3 fixed the "Stats doesn't include today"
+> bug (PR #6, DSH-authored 4-layer fix — ADR 0006). The v1.5 fix
+> is the auto-cure for the "passos antes de abrir" complaint —
+> ADR 0009 captured-on-resume baseline.
 
 ## Goal
 

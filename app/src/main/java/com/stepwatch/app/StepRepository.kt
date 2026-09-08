@@ -48,6 +48,14 @@ class StepRepository(private val context: Context) : SensorEventListener {
     @Volatile private var lastRawTotal: Long = -1L
     @Volatile private var midnightRawTotal: Long = -1L
     @Volatile private var midnightDate: String = ""
+    /**
+     * Timestamp (ms since epoch) at which the current midnight baseline was
+     * captured. Set by [refreshMidnightBaseline] when it writes a fresh
+     * baseline and by [onSensorChanged] when it triggers a rollover. Null
+     * before any baseline is established this process lifetime. Used by the
+     * UI to render the "Sensor (desde HH:MM)" pill — see ticket 12 / ADR 0009.
+     */
+    @Volatile internal var midnightCapturedAt: Long? = null
 
     init {
         // v3.3 take 2: load the persisted sensor baseline eagerly so any
@@ -236,7 +244,11 @@ class StepRepository(private val context: Context) : SensorEventListener {
             Log.w(TAG, "readNativeStepsToday: lastRawTotal=-1 (no baseline loaded); returning null")
             return null
         }
-        rollMidnightIfNeeded()
+        // Ticket 12 / ADR 0009: refreshMidnightBaseline() also calls
+        // rollMidnightIfNeeded() when it fires, so a separate call here
+        // would be redundant — both paths share the same idempotent
+        // guards.
+        refreshMidnightBaseline()
         val baseline = midnightRawTotal
         if (baseline < 0) {
             Log.w(TAG, "readNativeStepsToday: midnightRawTotal=-1 after roll; returning 0L")
@@ -249,6 +261,26 @@ class StepRepository(private val context: Context) : SensorEventListener {
             "readNativeStepsToday: lastRawTotal=$lastRawTotal midnightRawTotal=$midnightRawTotal midnightDate=$midnightDate → $result"
         )
         return result
+    }
+
+    /**
+     * Capture the midnight baseline if it is stale (prefs say it's not
+     * today) AND we have a valid [lastRawTotal] from the sensor. Idempotent;
+     * safe to call on every read. Extracted from the inline path in
+     * [readNativeStepsToday] so the read path stays a straight line.
+     *
+     * Body delegates to [rollMidnightIfNeeded] (which already persists the
+     * baseline). We just stamp the in-memory timestamp so the UI can show
+     * "Sensor (desde HH:MM)". Ticket 12 / ADR 0009.
+     */
+    private fun refreshMidnightBaseline() {
+        if (midnightDate == todayDate() || lastRawTotal < 0L) return
+        midnightCapturedAt = System.currentTimeMillis()
+        rollMidnightIfNeeded()
+        Log.w(
+            TAG,
+            "refreshMidnightBaseline: captured lastRawTotal=$lastRawTotal date=$midnightDate at=$midnightCapturedAt"
+        )
     }
 
     /**

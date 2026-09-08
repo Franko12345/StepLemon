@@ -73,6 +73,19 @@
                 android:textColor="@color/lemon_text_dim"
                 android:textSize="14sp"/>
 
+            <!-- Ticket 12 / ADR 0009: subtle caption shown when the midnight
+                 baseline was captured in this session (i.e. on open, not at
+                 first sensor event). GONE by default. -->
+            <TextView
+                android:id="@+id/caption_pre_open"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/caption_pre_open"
+                android:textColor="@color/lemon_primary"
+                android:textSize="11sp"
+                android:visibility="gone"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

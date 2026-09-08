@@ -17,6 +17,7 @@
 package com.stepwatch.app
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
@@ -136,5 +137,62 @@ class StepRepositoryTest {
         verify(am, never()).cancel(
             org.mockito.ArgumentMatchers.any(android.app.PendingIntent::class.java)
         )
+    }
+
+    // ---- Ticket 12 / ADR 0009: midnight baseline on resume ----
+
+    @Test
+    fun baseline_capture_skipped_when_last_raw_unset() {
+        // Se prefs retorna -1L para lastRawTotal, init {} deixa o default
+        // (-1L), então readNativeStepsToday() retorna null — nenhum editor
+        // é tocado. Protege contra prefs stale logo após reboot.
+        val sensorPrefs = mock(android.content.SharedPreferences::class.java, RETURNS_DEFAULTS)
+        val editor = mock(android.content.SharedPreferences.Editor::class.java, RETURNS_DEFAULTS)
+        `when`(sensorPrefs.edit()).thenReturn(editor)
+        `when`(sensorPrefs.getLong("last_raw_total", -1L)).thenReturn(-1L)
+        `when`(sensorPrefs.getLong("midnight_raw_total", -1L)).thenReturn(-1L)
+        `when`(sensorPrefs.getString("midnight_date", "")).thenReturn("")
+        val ctx = mock(android.content.Context::class.java, RETURNS_DEFAULTS)
+        val stubManager = mock(android.hardware.SensorManager::class.java)
+        `when`(ctx.getSystemService(android.content.Context.SENSOR_SERVICE)).thenReturn(stubManager)
+        `when`(ctx.getSharedPreferences(anyString(), anyInt())).thenReturn(sensorPrefs)
+
+        val repo = StepRepository(ctx)
+        val result = repo.readNativeStepsToday()
+        assertEquals(null, result)
+        verify(editor, never()).putLong(anyString(), anyLong())
+    }
+
+    @Test
+    fun baseline_capture_writes_prefs_when_midnight_date_is_stale() {
+        // Cenário: ontem o usuário abriu o app e andou. prefs têm lastRawTotal
+        // e midnightDate antigos. Ao abrir hoje, midnightDate está stale e
+        // lastRawTotal é válido. A captura DEVE gravar midnight_raw=lastRawTotal
+        // e midnight_date=hoje.
+        val sensorPrefs = mock(android.content.SharedPreferences::class.java, RETURNS_DEFAULTS)
+        val editor = mock(android.content.SharedPreferences.Editor::class.java)
+        `when`(sensorPrefs.edit()).thenReturn(editor)
+        // Encadeamento putLong(...).putString(...).apply() precisa retornar
+        // o próprio editor em cada chamada — RETURNS_DEFAULTS devolve null
+        // para os setters e quebraria a cadeia.
+        `when`(editor.putLong(anyString(), anyLong())).thenReturn(editor)
+        `when`(editor.putString(anyString(), anyString())).thenReturn(editor)
+        val yesterdaysRaw = 8500L
+        `when`(sensorPrefs.getLong("last_raw_total", -1L)).thenReturn(yesterdaysRaw)
+        `when`(sensorPrefs.getLong("midnight_raw_total", -1L)).thenReturn(yesterdaysRaw - 100L)
+        `when`(sensorPrefs.getString("midnight_date", "")).thenReturn("2025-01-14")
+        val ctx = mock(android.content.Context::class.java, RETURNS_DEFAULTS)
+        val stubManager = mock(android.hardware.SensorManager::class.java)
+        `when`(ctx.getSystemService(android.content.Context.SENSOR_SERVICE)).thenReturn(stubManager)
+        `when`(ctx.getSharedPreferences(anyString(), anyInt())).thenReturn(sensorPrefs)
+
+        val repo = StepRepository(ctx)
+        val result = repo.readNativeStepsToday()
+        assertNotNull(result)
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+            .format(java.util.Date())
+        verify(editor).putLong(eq("midnight_raw_total"), eq(yesterdaysRaw))
+        verify(editor).putString(eq("midnight_date"), eq(today))
+        assertNotNull(repo.midnightCapturedAt)
     }
 }
