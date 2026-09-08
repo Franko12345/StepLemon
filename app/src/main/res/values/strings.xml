@@ -67,9 +67,11 @@
     <!-- Permissions / source -->
     <string name="permission_required">Permissão de atividade física</string>
     <string name="grant_permission">Conceder</string>
-    <string name="source_zepp">Zepp Life</string>
-    <string name="source_sensor">Sensor do Android</string>
-    <string name="source_none">Nenhuma fonte</string>
+    <string name="source_zepp">🍋 Zepp</string>
+    <string name="source_sensor">📡 Sensor</string>
+    <string name="source_sensor_captured">📡 Sensor (desde %1$s)</string>
+    <string name="source_none">—</string>
+    <string name="caption_pre_open">Passos pré-abertura contabilizados</string>
     <string name="zepp_installed">Zepp instalado</string>
     <string name="zepp_not_installed">Zepp não encontrado</string>
     <string name="zepp_authorized">Acesso liberado</string>
